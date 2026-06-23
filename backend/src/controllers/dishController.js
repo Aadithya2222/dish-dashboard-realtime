@@ -18,7 +18,9 @@ const toggleDish = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const dish = await Dish.findOne({ dishId: Number(id) });
+    const dish = await Dish.findOne({
+      dishId: Number(id)
+    });
 
     if (!dish) {
       return res.status(404).json({
@@ -29,6 +31,10 @@ const toggleDish = async (req, res) => {
     dish.isPublished = !dish.isPublished;
 
     await dish.save();
+
+    const io = req.app.get("io");
+
+    io.emit("dishUpdated", dish);
 
     res.status(200).json({
       success: true,
